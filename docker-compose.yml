@@ -1,0 +1,41 @@
+
+version: '2.2'
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cube
+      POSTGRES_PASSWORD: cube_pw
+      POSTGRES_DB: semantic_layer
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cube -d semantic_layer"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  cube:
+    image: cubejs/cube:v1.7.30
+    ports:
+      # It's better to use random port binding for 4000/3000 ports
+      # without it you will not able to start multiple projects inside docker
+      - 4000:4000  # Cube API and Developer Playground
+      - 3000:3000  # Dashboard app, if created
+    env_file: .env
+    environment:
+      CUBEJS_DB_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/cube/conf
+      # We ignore Cube deps, because they are built-in inside the official Docker image
+      - .empty:/cube/conf/node_modules/@cubejs-backend/
+
+volumes:
+  pgdata:

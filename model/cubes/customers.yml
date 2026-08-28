@@ -1,0 +1,33 @@
+cubes:
+  - name: customers
+    sql_table: customers
+
+    dimensions:
+      - name: id
+        sql: customer_id
+        type: number
+        primary_key: true
+
+      - name: full_name
+        sql: "{CUBE}.first_name || ' ' || {CUBE}.last_name"
+        type: string
+
+      - name: email
+        sql: email
+        type: string
+
+      - name: city
+        sql: city
+        type: string
+
+      - name: state
+        sql: state
+        type: string
+
+      - name: signup_date
+        sql: signup_date
+        type: time
+
+    measures:
+      - name: count
+        type: count

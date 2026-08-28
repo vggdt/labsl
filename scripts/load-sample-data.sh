@@ -16,7 +16,14 @@ DB_NAME="${DB_NAME:-semantic_layer}"
 cd "$(dirname "$0")/.."
 
 run_psql() {
-  psql -U "$PGSUPERUSER" -v ON_ERROR_STOP=1 "$@"
+  # Debian/Ubuntu Postgres only allows local-socket peer auth as the
+  # `postgres` role when run *as* the `postgres` OS user, so shell out via
+  # sudo unless we already are that user (e.g. inside a minimal container).
+  if [ "$(id -un)" = "$PGSUPERUSER" ]; then
+    psql -U "$PGSUPERUSER" -v ON_ERROR_STOP=1 "$@"
+  else
+    sudo -u "$PGSUPERUSER" psql -v ON_ERROR_STOP=1 "$@"
+  fi
 }
 
 if ! run_psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='${DB_USER}'" | grep -q 1; then

@@ -1,0 +1,57 @@
+cubes:
+  - name: order_items
+    sql_table: order_items
+
+    joins:
+      - name: orders
+        sql: "{CUBE}.order_id = {orders.id}"
+        relationship: many_to_one
+
+      - name: products
+        sql: "{CUBE}.product_id = {products.id}"
+        relationship: many_to_one
+
+    pre_aggregations:
+      - name: revenue_by_day_and_category
+        measures:
+          - total_revenue
+          - total_quantity
+          - count
+        dimensions:
+          - products.category
+        time_dimension: orders.order_date
+        granularity: day
+
+    dimensions:
+      - name: id
+        sql: order_item_id
+        type: number
+        primary_key: true
+
+      - name: quantity
+        sql: quantity
+        type: number
+
+      - name: unit_price
+        sql: unit_price
+        type: number
+
+      - name: line_total
+        sql: "{CUBE}.quantity * {CUBE}.unit_price"
+        type: number
+
+    measures:
+      - name: count
+        type: count
+
+      - name: total_quantity
+        sql: quantity
+        type: sum
+
+      - name: total_revenue
+        sql: "{line_total}"
+        type: sum
+
+      - name: average_order_value
+        sql: "{line_total}"
+        type: avg

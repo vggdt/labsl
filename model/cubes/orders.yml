@@ -1,0 +1,31 @@
+cubes:
+  - name: orders
+    sql_table: orders
+
+    joins:
+      - name: customers
+        sql: "{CUBE}.customer_id = {customers.id}"
+        relationship: many_to_one
+
+    dimensions:
+      - name: id
+        sql: order_id
+        type: number
+        primary_key: true
+
+      - name: status
+        sql: status
+        type: string
+
+      - name: order_date
+        sql: order_date
+        type: time
+
+    measures:
+      - name: count
+        type: count
+
+      - name: completed_count
+        type: count
+        filters:
+          - sql: "{CUBE}.status = 'completed'"

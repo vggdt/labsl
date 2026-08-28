@@ -1,0 +1,38 @@
+# The `sales` view is the single entry point BI tools and analysts should query.
+# It exposes a curated slice of the underlying cubes and controls the join paths
+# between them, so consumers don't need to know the model's internal structure.
+views:
+  - name: sales
+
+    cubes:
+      - join_path: order_items
+        includes:
+          - quantity
+          - unit_price
+          - line_total
+          - total_quantity
+          - total_revenue
+          - average_order_value
+          - count
+
+      - join_path: order_items.orders
+        prefix: true
+        includes:
+          - status
+          - order_date
+          - completed_count
+
+      - join_path: order_items.orders.customers
+        prefix: true
+        includes:
+          - full_name
+          - city
+          - state
+          - signup_date
+
+      - join_path: order_items.products
+        prefix: true
+        includes:
+          - name
+          - category
+          - price

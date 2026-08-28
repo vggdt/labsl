@@ -8,7 +8,17 @@
 
 set -euo pipefail
 
-PGSUPERUSER="${PGSUPERUSER:-postgres}"
+if [ -z "${PGSUPERUSER:-}" ]; then
+  if [ "$(uname)" = "Darwin" ]; then
+    # Homebrew/Postgres.app initialize the cluster with the invoking macOS
+    # user as the bootstrap superuser — there is no "postgres" OS account.
+    PGSUPERUSER="$(id -un)"
+  else
+    # Debian/Ubuntu's postgresql package creates a dedicated "postgres" OS
+    # user and only allows local-socket peer auth as that user.
+    PGSUPERUSER="postgres"
+  fi
+fi
 DB_USER="${DB_USER:-cube}"
 DB_PASS="${DB_PASS:-cube_pw}"
 DB_NAME="${DB_NAME:-semantic_layer}"
@@ -16,13 +26,15 @@ DB_NAME="${DB_NAME:-semantic_layer}"
 cd "$(dirname "$0")/.."
 
 run_psql() {
-  # Debian/Ubuntu Postgres only allows local-socket peer auth as the
-  # `postgres` role when run *as* the `postgres` OS user, so shell out via
-  # sudo unless we already are that user (e.g. inside a minimal container).
+  # -d postgres: without an explicit dbname, psql defaults to a database
+  # named after the connecting role, which only exists by coincidence.
+  # The "postgres" maintenance database always exists after initdb.
   if [ "$(id -un)" = "$PGSUPERUSER" ]; then
-    psql -U "$PGSUPERUSER" -v ON_ERROR_STOP=1 "$@"
+    psql -U "$PGSUPERUSER" -d postgres -v ON_ERROR_STOP=1 "$@"
+  elif command -v sudo >/dev/null 2>&1 && id "$PGSUPERUSER" >/dev/null 2>&1; then
+    sudo -u "$PGSUPERUSER" psql -d postgres -v ON_ERROR_STOP=1 "$@"
   else
-    sudo -u "$PGSUPERUSER" psql -v ON_ERROR_STOP=1 "$@"
+    psql -U "$PGSUPERUSER" -d postgres -v ON_ERROR_STOP=1 "$@"
   fi
 }
 

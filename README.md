@@ -83,7 +83,19 @@ Swap the sample dataset for your own warehouse:
    `.env` to your database (Postgres, BigQuery, Snowflake, etc. — see
    [supported data sources](https://cube.dev/docs/product/configuration/data-sources)).
 2. Replace `sql_table:` in each `model/cubes/*.yml` file with your real
-   table names (or use `cubejs generate -t table1,table2` to scaffold cubes
-   from an existing schema via introspection).
+   table names, or scaffold cubes from your existing schema via
+   introspection: `npm run generate -- -t table1,table2` (reads the
+   `CUBEJS_DB_*` connection from `.env`). Output is JavaScript (not YAML)
+   and only includes joins (auto-detected from foreign keys) and raw
+   per-column dimensions with a default `count` measure — you'll still
+   need to add calculated fields, business-logic measures, and update
+   `model/views/sales.yml` by hand.
 3. Adjust joins, measures, and dimensions to match your schema, and update
    `model/views/sales.yml` to expose the fields your BI tools should see.
+
+> `npm run generate` requires the `patches/@cubejs-backend+schema-compiler+*.patch`
+> in this repo (applied automatically via `postinstall`) — `cubejs-cli@1.7.30`'s
+> `generate` command has a packaging bug where it looks for
+> `schema-compiler/scaffolding/ScaffoldingTemplate.js` at the package root,
+> but the file only exists under `dist/src/`. The patch adds a small
+> re-export shim at the expected path. Safe to drop once upstream fixes it.

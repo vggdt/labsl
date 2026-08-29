@@ -1,0 +1,11 @@
+diff --git a/node_modules/@cubejs-backend/schema-compiler/scaffolding/ScaffoldingTemplate.js b/node_modules/@cubejs-backend/schema-compiler/scaffolding/ScaffoldingTemplate.js
+new file mode 100644
+index 0000000..cf8fa4f
+--- /dev/null
++++ b/node_modules/@cubejs-backend/schema-compiler/scaffolding/ScaffoldingTemplate.js
+@@ -0,0 +1,5 @@
++// Workaround for a packaging bug in cubejs-cli@1.7.30's `generate` command:
++// it require()s this file at the package root, but schema-compiler's build
++// only outputs it under dist/src/. See patches/README (if present) or
++// https://github.com/cube-js/cube.js/issues for upstream status.
++module.exports = require('../dist/src/scaffolding/ScaffoldingTemplate.js').ScaffoldingTemplate;

@@ -3,12 +3,16 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "cubejs-server"
+    "dev": "cubejs-server",
+    "postinstall": "patch-package",
+    "generate": "cubejs generate"
   },
   "template": "docker",
   "templateVersion": "1.7.30",
   "devDependencies": {
     "@cubejs-backend/postgres-driver": "^1.7.30",
-    "@cubejs-backend/server": "^1.7.30"
+    "@cubejs-backend/server": "^1.7.30",
+    "cubejs-cli": "^1.7.30",
+    "patch-package": "^8.0.1"
   }
 }

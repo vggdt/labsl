@@ -29,7 +29,7 @@ from .prompt import MODELING_PROMPT
 _log = logging.getLogger(__name__)
 
 BEDROCK_MODEL_ID = os.environ.get(
-    "CUBE_MODEL_BUILDER_BEDROCK_MODEL_ID", "us.amazon.nova-lite-v1:0"
+    "CUBE_MODEL_BUILDER_BEDROCK_MODEL_ID", "us.amazon.nova-2-lite-v1:0"
 )
 
 _MAX_RETRIES_PER_TABLE = 5
